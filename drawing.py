@@ -4,6 +4,7 @@ from OpenGL.GLUT import *
 import numpy as np
 import squaternion
 
+
 class Scene:
     def __init__(self):
         self.objects = set()
@@ -50,7 +51,7 @@ class PointsStream(Drawing):
 
     def __init__(self, points, scene=default_scene):
         self.points = points
-        super(PointsStream, self).__init__(scene)
+        super(self.__class__, self).__init__(scene)
 
     def draw(self):
         glBegin(GL_POINTS)
@@ -60,13 +61,23 @@ class PointsStream(Drawing):
 
 
 class Lines(Drawing):
-    def __init__(self, points, scene=default_scene):
+    def __init__(self, *points, colors=tuple(), scene=default_scene):
         self.points = points
-        super(Lines, self).__init__(scene)
+        self.colors = colors
+        super(self.__class__, self).__init__(scene)
 
     def draw(self):
+        color_gen = (glColor3f(*color) for color in (self.colors if self.colors else []))
+
+        def iterator():
+            try:
+                next(color_gen)
+            except StopIteration:
+                pass
+
         glBegin(GL_LINES)
         for point in self.points:
+            iterator()
             glVertex3f(*point)
         glEnd()
 
@@ -77,7 +88,7 @@ class Rectangle(Drawing):
         self.y1 = y1
         self.x2 = x2
         self.y2 = y2
-        super(Rectangle, self).__init__(scene)
+        super(self.__class__, self).__init__(scene)
 
     def draw(self):
         glRectf(self.x1, self.y1, self.x2, self.y2)
@@ -87,7 +98,7 @@ class Polygon(Drawing):
     def __init__(self, *points, colors=None, scene=default_scene):
         self.points = points
         self.colors = colors
-        super(Polygon, self).__init__(scene)
+        super(self.__class__, self).__init__(scene)
 
     def draw(self):
         glBegin(GL_POLYGON)
@@ -105,7 +116,7 @@ class Triangles(Drawing):
     def __init__(self, *points, colors=None, scene=default_scene):
         self.points = points
         self.colors = colors
-        super(Triangles, self).__init__(scene)
+        super(self.__class__, self).__init__(scene)
 
     def draw(self):
         glBegin(GL_TRIANGLES)
@@ -122,7 +133,7 @@ class Triangles(Drawing):
 
 class CubeZWykladu(Drawing):
     def __init__(self, scene=default_scene):
-        super(CubeZWykladu, self).__init__(scene)
+        super(self.__class__, self).__init__(scene)
 
     def draw(self):
         glBegin(GL_LINE_LOOP)
@@ -179,7 +190,7 @@ class TeaPot(Drawing):
         self.solid = solid
         self.size = size
         self.color = color
-        super(TeaPot, self).__init__(scene)
+        super(self.__class__, self).__init__(scene)
 
     def draw(self):
         if self.color:
@@ -192,7 +203,7 @@ class TeaPot(Drawing):
 
 class Composite(Drawing):
     def __init__(self, *objects, scene=default_scene):
-        super(Composite, self).__init__(scene)
+        super(self.__class__, self).__init__(scene)
         for object in objects:
             for scene in object.scenes:
                 scene.objects.remove(object)
@@ -203,3 +214,57 @@ class Composite(Drawing):
     def draw(self):
         for object in self.objects:
             object.draw_apply_transform()
+
+
+class Cube(Drawing):
+    def __init__(self, colors=None, scene=default_scene):
+        self.colors = colors
+        super(self.__class__, self).__init__(scene)
+
+    def draw(self):
+        color_gen = (glColor3f(*color) for color in (self.colors if self.colors else []))
+
+        def iterator():
+            try:
+                next(color_gen)
+            except StopIteration:
+                pass
+
+        glBegin(GL_QUADS)
+
+        iterator()
+        glVertex3f(-1, 1, 1)
+        glVertex3f(-1, -1, 1)
+        glVertex3f(1, -1, 1)
+        glVertex3f(1, 1, 1)
+
+        iterator()
+        glVertex3f(-1, 1, -1)
+        glVertex3f(-1, -1, -1)
+        glVertex3f(1, -1, -1)
+        glVertex3f(1, 1, -1)
+
+        iterator()
+        glVertex3f(-1, 1, -1)
+        glVertex3f(-1, 1, 1)
+        glVertex3f(1, 1, 1)
+        glVertex3f(1, 1, -1)
+
+        iterator()
+        glVertex3f(-1, -1, -1)
+        glVertex3f(-1, -1, 1)
+        glVertex3f(1, -1, 1)
+        glVertex3f(1, -1, -1)
+
+        iterator()
+        glVertex3f(-1, 1, -1)
+        glVertex3f(-1, -1, -1)
+        glVertex3f(-1, -1, 1)
+        glVertex3f(-1, 1, 1)
+
+        iterator()
+        glVertex3f(1, 1, -1)
+        glVertex3f(1, -1, -1)
+        glVertex3f(1, -1, 1)
+        glVertex3f(1, 1, 1)
+        glEnd()

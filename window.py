@@ -9,7 +9,7 @@ from OpenGL.GL import *
 class Window:
     all_windows = set()
 
-    def __init__(self, *size, viewports=(Viewport(0, 0, 800, 600, 50, 0.001),), mode='pygame', **kwargs):
+    def __init__(self, *size, viewports=[Viewport(0, 0, 800, 600, 50, 0.001),], mode='pygame', **kwargs):
         self.x = size[0]
         self.y = size[1]
         self.viewports = viewports

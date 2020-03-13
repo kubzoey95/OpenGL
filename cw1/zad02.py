@@ -11,7 +11,6 @@ from math import sin, pi, fmod, cos
 from OpenGL.GLUT import *
 
 
-
 class MyApp(Application):
     def __init__(self):
         self.delta_time = 0
@@ -23,7 +22,7 @@ class MyApp(Application):
         for tpt in tpots_around:
             tpt.scale = (0.5, 0.5, 0.5)
         for index, tpt in enumerate(tpots_around):
-            tpt.transform = (2*cos(index*(2*pi / len(tpots_around))),0,2*sin(index*(2*pi / len(tpots_around))))
+            tpt.transform = (3*cos(index*(2*pi / len(tpots_around))),0,3*sin(index*(2*pi / len(tpots_around))))
 
         rotation_times = tuple([random.uniform(-360, 360) for _ in range(len(tpots_around))])
 
@@ -31,6 +30,8 @@ class MyApp(Application):
         composite_rot = random.uniform(-360, 360)
 
         self.window.viewports[0].camera.pos = (0,1.5,5)
+        self.window.viewports.append(Viewport(400,300, 400, 300, 50, 0.001, clear_before_draw=False, projection='persp'))
+        self.window.viewports[1].camera.pos = (5, 5, 0)
 
         def display_func():
             current_time = time.time()
@@ -43,8 +44,7 @@ class MyApp(Application):
             self.delta_time = time.time() - current_time
 
         def keyboard_func(*args):
-            pass
-
+            print(args)
 
         glutKeyboardFunc(keyboard_func)
         glutDisplayFunc(display_func)
