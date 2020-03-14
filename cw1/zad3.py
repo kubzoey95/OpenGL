@@ -10,6 +10,7 @@ from operator import add, mul
 from math import sin, pi, fmod, cos
 from OpenGL.GLUT import *
 import numpy as np
+from ctypes import c_int
 
 
 class MyApp(Application):
@@ -35,6 +36,8 @@ class MyApp(Application):
         line = Lines((0,0,0), (0,0,0), colors=((0,0,1),))
         rots = [random.uniform(0, 360) for _ in range(3)]
         self.window.viewports[0].camera.transform = (0,0,10)
+        glutWarpPointer(int(glutGet(GLUT_WINDOW_X) + glutGet(GLUT_WINDOW_WIDTH) / 2),
+                        int(glutGet(GLUT_WINDOW_Y) + glutGet(GLUT_WINDOW_HEIGHT) / 2))
         def display_func():
             current_time = time.time()
             for qb, trans in zip(qbs, points):
@@ -42,15 +45,8 @@ class MyApp(Application):
 
             movement_x = self.keys.get(b'd', 0) - self.keys.get(b'a', 0)
             movement_y = -self.keys.get(b'w', 0) + self.keys.get(b's', 0)
-            left = self.window.viewports[0].camera.left_vector / np.linalg.norm(self.window.viewports[0].camera.left_vector)
-            front = self.window.viewports[0].camera.front_vector / np.linalg.norm(self.window.viewports[0].camera.front_vector)
-            # movement = (movement_x * self.window.viewports[0].camera.left_vector) - (movement_y * self.window.viewports[0].camera.front_vector)
-            movement = movement_y * self.window.viewports[0].camera.front_vector + movement_x * self.window.viewports[0].camera.left_vector
-            movement *= self.delta_time * 5
-            line.points = (self.window.viewports[0].camera.transform, tuple(np.array(self.window.viewports[0].camera.transform) + self.window.viewports[0].camera.front_vector))
-            print('left', left, 'front', front)
-            if list(movement):
-                self.window.viewports[0].camera.transform = tuple(map(add, self.window.viewports[0].camera.transform, movement))
+            self.window.viewports[0].camera.move_forward(self.delta_time * 5 * movement_y)
+            self.window.viewports[0].camera.move_left(self.delta_time * 5 * movement_x)
             self.draw_all()
             self.delta_time = time.time() - current_time
 
@@ -74,10 +70,11 @@ class MyApp(Application):
                 self.btn_clicked = not state
 
         def motion(x, y):
-            self.mouse_rot = ((x-self.mouse_pos[0]) * self.delta_time * self.btn_clicked * 50,(self.mouse_pos[1] - y) * self.delta_time * self.btn_clicked * 50)
+            self.mouse_rot = ((x-int(glutGet(GLUT_WINDOW_WIDTH) / 2)) * self.delta_time * self.btn_clicked * 50,(int(glutGet(GLUT_WINDOW_HEIGHT) / 2)-y) * self.delta_time * self.btn_clicked * 50)
             self.window.viewports[0].camera.rot_xy = tuple(map(lambda itm1, itm2: (itm1 + itm2) % 360, self.window.viewports[0].camera.rot_xy, self.mouse_rot))
-
-            self.mouse_pos = (x,y)
+            print(x,y)
+            glutWarpPointer(int(glutGet(GLUT_WINDOW_WIDTH) / 2),
+                            int(glutGet(GLUT_WINDOW_HEIGHT) / 2))
 
         glutMotionFunc(motion)
         glutMouseFunc(mouse_button_func)

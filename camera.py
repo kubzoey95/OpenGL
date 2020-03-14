@@ -26,40 +26,45 @@ class Camera:
         self.relative_transform = np.array([0,0,0])
 
     def refresh_pos(self):
-        glRotatef(self.rot_xy[0], 0, 1, 0)
-        glRotatef(-self.rot_xy[1], 1, 0, 0)
+        quat_rot = squaternion.euler2quat(self.rot_xy[1], self.rot_xy[0], 0, True)
+        rot_angle = np.degrees(2 * np.arccos(quat_rot.w))
+        square_coef = np.sqrt(1 - np.square(quat_rot.w))
+        if rot_angle > 0.001 and square_coef > 0.001:
+            rot_x = quat_rot.x / square_coef
+            rot_y = quat_rot.y / square_coef
+            rot_z = quat_rot.z / square_coef
+            glRotatef(rot_angle, rot_x, rot_y, rot_z)
         glTranslatef(*[-coor for coor in self.transform])
         glTranslatef(*[-coor for coor in self.pos])
-        print(np.array(self.transform) + np.array(self.pos))
 
     def look_at(self):
         self.look_at_pos and gluLookAt(*self.pos, *self.look_at_pos, *self.up)
 
-    def translate_vector_in_direction(self, vect):
+    def move_forward(self, amount):
         glMatrixMode(GL_MODELVIEW)
         glPushMatrix()
         glLoadIdentity()
         self.view()
-        translated_vector = np.matmul(self.view_matrix.transpose(), vect.transpose())
+        glMatrixMode(GL_MODELVIEW)
         glPopMatrix()
-        return translated_vector
+        forward_normalized = self.front_vector / np.linalg.norm(self.front_vector)
+        self.transform = tuple(np.array(self.transform) + (forward_normalized * amount))
 
-    def move_in_direction(self, direction):
-        self.transform = tuple(self.translate_vector_in_direction(direction).transpose()[:3])
-        print(self.transform)
+    def move_left(self, amount):
+        glMatrixMode(GL_MODELVIEW)
+        glPushMatrix()
+        glLoadIdentity()
+        self.view()
+        glMatrixMode(GL_MODELVIEW)
+        glPopMatrix()
+        left_normalized = self.left_vector / np.linalg.norm(self.left_vector)
+        self.transform = tuple(np.array(self.transform) + (left_normalized * amount))
 
     def view(self):
         self.look_at()
         self.refresh_pos()
         self.view_matrix = glGetDoublev(GL_MODELVIEW_MATRIX)
-        print('matr', self.view_matrix)
         self.left_vector = self.view_matrix[:3, 0]
         self.up_vector = self.view_matrix[:3, 1]
         self.front_vector = self.view_matrix[:3, 2]
         self.relative_transform = self.view_matrix[:3, 3]
-
-        # tran = self.left_vector * self.relative_transform[0] + self.up_vector * self.relative_transform[1] + self.front_vector * self.relative_transform[2]
-
-        print('tran', np.matmul(self.view_matrix[3, :3], self.view_matrix[:3,:3]))
-        print('transform', np.array(self.pos) + np.array(self.transform))
-
