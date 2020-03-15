@@ -5,9 +5,7 @@ from drawing import Lines
 import random
 import pygame
 import time
-from drawing import Triangles
-from operator import add, mul
-from math import sin, pi, fmod
+from drawing import Polygon
 
 
 class MyApp(Application):
@@ -15,18 +13,18 @@ class MyApp(Application):
         super(MyApp, self).__init__()
 
     def run(self):
-        rekt2 = Triangles((-0.5, -0.5, 0), (0.5, -0.5, 0), (0.5, 0.5, 0), colors=[(1, 0, 0), (0, 1, 0), (0, 0, 1)])
+        rekt2 = Polygon((-0.5, -0.5, 0), (0.5, -0.5, 0), (0.5, 0.5, 0), (-0.5, 0.5, 0), colors=[(1, 0, 0), (0, 1, 0), (0, 0, 1), (1, 1, 1)])
+        rekt = Polygon((-0.5, -0.5, 0), (0.5, -0.5, 0), (0.5, 0.5, 0), (-0.5, 0.5, 0), colors=[(1,0,0),(0,1,0),(0,0,1),(1,1,1)])
         delta_time = 0
         v_port2 = Viewport(400, 300, 400, 300, 50, 0.001, clear_before_draw=True)
         v_port1 = self.window.viewports[0]
         self.window.viewports = (self.window.viewports[0], v_port2)
         v_port1.camera.look_at_pos = (0.3, 0,0)
+        rekt.transform = (0.5, 0.5, 0)
         rotate = True
-        tme = 0
-        colors = rekt2.colors
         while True:
-            tme = fmod(tme + (delta_time * 2*pi * rotate), 2*pi)
             curr_time = time.time()
+            print('time', delta_time)
             self.draw_all()
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -35,14 +33,13 @@ class MyApp(Application):
                 if event.type == pygame.KEYUP:
                     if event.key == pygame.K_SPACE:
                         rotate = not rotate
-            print(colors)
-            print(rekt2.colors)
-            rekt2.colors = tuple([tuple(map(mul, color, ((sin(tme) + 1) / 2, ) * len(color))) for color in colors])
+            rekt.rotation = (rekt.rotation[0] + 360 * delta_time * rotate, rekt.rotation[1], rekt.rotation[2])
+            rekt2.rotation = (rekt2.rotation[0] + 180 * delta_time * rotate, rekt2.rotation[1], rekt2.rotation[2])
             delta_time = time.time() - curr_time
 
+def main():
+    x = MyApp()
 
-x = MyApp()
+    x.init()
 
-x.init()
-
-x.run()
+    x.run()

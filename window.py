@@ -37,6 +37,7 @@ class Window:
     def init(self):
         if self.mode == 'pygame':
             pygame.display.set_mode((self.x, self.y), DOUBLEBUF | OPENGL)
+            pygame.display.set_caption(str(self.additional_options.get('window_name')))
         elif self.mode == 'glut':
             glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH)
             glutInitWindowSize(self.x, self.y)

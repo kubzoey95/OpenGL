@@ -12,7 +12,8 @@ from math import sin, pi, fmod
 
 class MyApp(Application):
     def __init__(self):
-        super(MyApp, self).__init__()
+        super(MyApp, self).__init__(
+            window=Window(800, 600, window_name='kostka,sterowanie strzalkami (strzalki trzeba klikac za kazdym razem), p zmienia perspektywe'))
 
     def run(self):
         rekt2 = CubeZWykladu()
@@ -24,7 +25,7 @@ class MyApp(Application):
         rotate = True
         proj = ('persp', 'ortho')
         proj_iterator = 0
-        move_vect = (0,0,0)
+        move_vect = (0, 0, 0)
         while True:
             curr_time = time.time()
             self.draw_all()
@@ -41,9 +42,9 @@ class MyApp(Application):
                     if event.key == pygame.K_RIGHT:
                         move_vect = (delta_time / 2, 0, 0)
                     if event.key == pygame.K_DOWN:
-                        move_vect = (0, -delta_time / 2,0)
+                        move_vect = (0, -delta_time / 2, 0)
                     if event.key == pygame.K_UP:
-                        move_vect = (0, delta_time / 2,0)
+                        move_vect = (0, delta_time / 2, 0)
                 if event.type == pygame.KEYUP:
                     if event.key == pygame.K_LEFT:
                         move_vect = (0, move_vect[1], 0)
@@ -56,9 +57,9 @@ class MyApp(Application):
                 v_port1.camera.pos = tuple(map(add, v_port1.camera.pos, move_vect))
             delta_time = time.time() - curr_time
 
+def main():
+    x = MyApp()
 
-x = MyApp()
+    x.init()
 
-x.init()
-
-x.run()
+    x.run()

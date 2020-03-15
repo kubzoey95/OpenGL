@@ -27,9 +27,12 @@ class Drawing:
         self.rotation = rotation
         self.scale = scale
         self.parent = scene
+        self.model_matrix = np.identity(4)
+        self.left_vector = np.array([1, 0, 0])
+        self.up_vector = np.array([0, 1, 0])
+        self.front_vector = np.array([0, 0, 1])
 
-    def draw_apply_transform(self):
-        glPushMatrix()
+    def apply_transform(self):
         quat_rot = squaternion.euler2quat(*self.rotation, True)
         glTranslatef(*self.transform)
         rot_angle = np.degrees(2 * np.arccos(quat_rot.w))
@@ -40,6 +43,26 @@ class Drawing:
             rot_z = quat_rot.z / square_coef
             glRotatef(rot_angle, rot_x, rot_y, rot_z)
         glScalef(*self.scale)
+
+    def draw_apply_transform(self):
+        glMatrixMode(GL_MODELVIEW)
+        before_matrix = glGetDoublev(GL_MODELVIEW_MATRIX)
+        # print('before', before_matrix)
+        glPushMatrix()
+        glLoadIdentity()
+        # print('ident',glGetDoublev(GL_MODELVIEW_MATRIX))
+        glPushMatrix()
+        self.apply_transform()
+        self.model_matrix = glGetDoublev(GL_MODELVIEW_MATRIX).transpose()
+        glPopMatrix()
+        print('after trans', self.model_matrix)
+        self.left_vector = self.model_matrix[:3, 0]
+        self.up_vector = self.model_matrix[:3, 1]
+        self.front_vector = self.model_matrix[:3, 2]
+        glPopMatrix()
+        glMatrixMode(GL_MODELVIEW)
+        glPushMatrix()
+        self.apply_transform()
         self.draw()
         glPopMatrix()
 
@@ -267,4 +290,23 @@ class Cube(Drawing):
         glVertex3f(1, -1, -1)
         glVertex3f(1, -1, 1)
         glVertex3f(1, 1, 1)
+        glEnd()
+
+
+class ChessTable(Drawing):
+    def __init__(self, rect_size, no_of_dims, scene=default_scene):
+        self.rect_size = rect_size
+        self.no_of_dims = no_of_dims
+
+        super(self.__class__, self).__init__(scene)
+
+    def draw(self):
+        glBegin(GL_QUADS)
+        for i in range(self.no_of_dims[0]):
+            for j in range(self.no_of_dims[1]):
+                glColor3f(*tuple(np.array((1,1,1)) * (((j % 2) + (i % 2)) % 2)))
+                glVertex3f(self.rect_size[0] * i, 0, self.rect_size[1] * j)
+                glVertex3f(self.rect_size[0] * (i + 1), 0, self.rect_size[1] * j)
+                glVertex3f(self.rect_size[0] * (i + 1), 0, self.rect_size[1] * (j + 1))
+                glVertex3f(self.rect_size[0] * i, 0, self.rect_size[1] * (j + 1))
         glEnd()

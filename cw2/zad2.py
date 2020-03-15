@@ -49,9 +49,10 @@ class MyApp(Application):
             rekt4.rotation = tuple(map(add, rekt4.rotation, (0, 0, 360 * delta_time * rotate)))
             delta_time = time.time() - curr_time
 
+def main():
+    x = MyApp()
 
-x = MyApp()
+    x.init()
 
-x.init()
+    x.run()
 
-x.run()

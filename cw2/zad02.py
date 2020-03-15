@@ -52,8 +52,10 @@ class MyApp(Application):
         glutMainLoop()
 
 
-x = MyApp()
+def main():
+    x = MyApp()
 
-x.init()
+    x.init()
 
-x.run()
+    x.run()
+

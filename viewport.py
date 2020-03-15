@@ -32,6 +32,27 @@ class Viewport:
             glOrtho(-self.width / self.height, self.width / self.height, -1, 1, self.znear, self.zfar)
             # glOrtho(0, self.width, self.height, 0, self.znear, self.zfar)
 
+    # def refresh(self):
+    #     glScissor(self.x, self.y, self.width, self.height)
+    #     glEnable(GL_SCISSOR_TEST)
+    #     if self.clear_before_draw:
+    #         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+    #     glMatrixMode(GL_MODELVIEW)
+    #     glPushMatrix()
+    #     glLoadIdentity()
+    #     self.camera.view()
+    #     default_scene.draw_all()
+    #     glMatrixMode(GL_PROJECTION)
+    #     glPushMatrix()
+    #     glViewport(self.x, self.y, self.width, self.height)
+    #     glLoadIdentity()
+    #     self.project()
+    #     glMatrixMode(GL_PROJECTION)
+    #     glPopMatrix()
+    #     glMatrixMode(GL_MODELVIEW)
+    #     glPopMatrix()
+    #     glDisable(GL_SCISSOR_TEST)
+
     def refresh(self):
         glScissor(self.x, self.y, self.width, self.height)
         glEnable(GL_SCISSOR_TEST)

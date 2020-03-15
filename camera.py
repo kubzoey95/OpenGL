@@ -26,19 +26,20 @@ class Camera:
         self.relative_transform = np.array([0,0,0])
 
     def refresh_pos(self):
-        quat_rot = squaternion.euler2quat(self.rot_xy[1], self.rot_xy[0], 0, True)
-        rot_angle = np.degrees(2 * np.arccos(quat_rot.w))
-        square_coef = np.sqrt(1 - np.square(quat_rot.w))
-        if rot_angle > 0.001 and square_coef > 0.001:
-            rot_x = quat_rot.x / square_coef
-            rot_y = quat_rot.y / square_coef
-            rot_z = quat_rot.z / square_coef
-            glRotatef(rot_angle, rot_x, rot_y, rot_z)
+        if self.rot_xy:
+            quat_rot = squaternion.euler2quat(self.rot_xy[1], self.rot_xy[0], 0, True)
+            rot_angle = np.degrees(2 * np.arccos(quat_rot.w))
+            square_coef = np.sqrt(1 - np.square(quat_rot.w))
+            if rot_angle > 0.001 and square_coef > 0.001:
+                rot_x = quat_rot.x / square_coef
+                rot_y = quat_rot.y / square_coef
+                rot_z = quat_rot.z / square_coef
+                glRotatef(rot_angle, rot_x, rot_y, rot_z)
         glTranslatef(*[-coor for coor in self.transform])
         glTranslatef(*[-coor for coor in self.pos])
 
     def look_at(self):
-        self.look_at_pos and gluLookAt(*self.pos, *self.look_at_pos, *self.up)
+        self.look_at_pos and gluLookAt(*tuple(np.array(self.pos) + np.array(self.transform)), *self.look_at_pos, *self.up_vector)
 
     def move_forward(self, amount):
         glMatrixMode(GL_MODELVIEW)
